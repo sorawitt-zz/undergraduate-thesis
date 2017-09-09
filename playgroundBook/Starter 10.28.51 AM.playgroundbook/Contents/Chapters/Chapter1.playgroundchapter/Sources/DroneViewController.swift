@@ -5,15 +5,16 @@ import CoreBluetooth
 import PlaygroundSupport
 import PlaygroundBluetooth
 
-public class DroneViewController: UIViewController {
+public class DroneViewController: UIViewController{
 
-    //let robotCommand: DroneCommand = DroneCommand()
+    let droneCommand: DroneCommand = DroneCommand()
     var droneConnection:DroneConnection = DroneConnection()
     var page:Int = 1
 
     var commandText: UITextView!
     var commandsForAssessment:[PlaygroundValue] = [PlaygroundValue]()
-
+    var initialConstraints = [NSLayoutConstraint]()
+    
     var btView:PlaygroundBluetoothConnectionView!
     var btViewConstraints = [NSLayoutConstraint]()
     let btViewDelegate = ConnectionViewDelegate()
@@ -34,16 +35,23 @@ public class DroneViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Setup robot connection callbacks
-//        droneConnection.onCharacteristicsDiscovered = onRobotConnected
-//        droneConnection.onDataWritten = onCommandCompleted
-//        droneConnection.onPeripheralNotFound = onRobotNotFound
-        //droneConnection.onCharacteristicsUpdated0 = onSensorUpdated0
-        //droneConnection.onCharacteristicsUpdated1 = onSensorUpdated1
-        //droneConnection.onMyPrint = myPrint
+                
+        // Setup Playground Bluetooth view
+        btView = PlaygroundBluetoothConnectionView(centralManager: droneConnection.centralManager!)
 
+        
+        
+        btView.delegate = btViewDelegate
+        btView.dataSource = btViewDelegate
+        
 
-        setupView()
+        self.view.addSubview(btView)
+        
+        NSLayoutConstraint.activate([
+            
+            btView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20),
+            btView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 20),
+            ])
     }
 
 
@@ -58,57 +66,13 @@ public class DroneViewController: UIViewController {
     }
 
 
-    func setupView(){
-
-        
-        // Setup commandText window
-        commandText = UITextView(frame: CGRect(
-            x: self.view.frame.width*5/100, y: self.view.frame.height*68/100,
-            width: self.view.frame.width*89/200, height: self.view.frame.height*15/100))
-        commandText.text = "Hello."
-        commandText.isEditable = false
-        commandText.backgroundColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 0)
-        commandText.textColor = #colorLiteral(red: 0.933, green: 0.443, blue: 0.137, alpha: 1)
-        commandText.font = UIFont.init(name: "Avenir Next", size: 30)
-        commandText.textAlignment = .center
-        commandText.textContainer.lineBreakMode = .byWordWrapping
-        self.view.addSubview(commandText)
-        
-        // Setup animation
-        //setCommandAnimation(CommandType.COMMAND_DISCONNECT.rawValue)
-        
-        // Setup Playground Bluetooth view
-        btView = PlaygroundBluetoothConnectionView(centralManager: droneConnection.centralManager!)
-        btView.delegate = btViewDelegate
-        btView.dataSource = btViewDelegate
-        self.view.addSubview(btView)
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
-            self.droneConnection.centralManager!.connectToLastConnectedPeripheral()
-        }
-
-    }
 
     public func processCommand(_ message: PlaygroundValue){
         commandText.text = "msg: \(message)"
         
     }
-//    func onRobotConnected(peripheral: CBPeripheral){
-//
-//    }
-//    
-//    func onRobotNotFound(){
-//
-//    }
-//    
-//    func onCommandCompleted(){
-//
-//    }
-  
-
-
     
-    var currentCommand:String = "";
-    
+   
 
 }
 
@@ -118,7 +82,7 @@ class ConnectionViewDelegate: PlaygroundBluetoothConnectionViewDelegate, Playgro
     public func connectionView(_ connectionView: PlaygroundBluetoothConnectionView, itemForPeripheral peripheral: CBPeripheral, withAdvertisementData advertisementData: [String : Any]?) -> PlaygroundBluetoothConnectionView.Item {
         // Provide display information associated with a peripheral item.
         let name = peripheral.name ?? NSLocalizedString("Unknown Device", comment:"")
-        let icon = #imageLiteral(resourceName: "robotAvatar.png")
+        let icon = UIImage(named: "BookIcon")!
         let issueIcon = icon
         return PlaygroundBluetoothConnectionView.Item(name: name, icon: icon, issueIcon: issueIcon, firmwareStatus: nil, batteryLevel: nil)
     }
@@ -154,9 +118,7 @@ class ConnectionViewDelegate: PlaygroundBluetoothConnectionViewDelegate, Playgro
  extension DroneViewController: PlaygroundLiveViewMessageHandler {
     
      public func liveViewMessageConnectionOpened() {
-//         self.log.text = ""
-         //isShowingResult = false
-//         //myPrint("liveViewMessageConnectionOpened")
+
      }
     
      public func liveViewMessageConnectionClosed() {
@@ -165,8 +127,8 @@ class ConnectionViewDelegate: PlaygroundBluetoothConnectionViewDelegate, Playgro
     
      public func receive(_ message: PlaygroundValue) {
             if case let .string(command) = message { // Commands
-
-                processCommand(message)
+                droneCommand.sendDroneCommand(droneConnection, message)
+                //processCommand(message)
             }
      }
     
