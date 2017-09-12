@@ -97,15 +97,15 @@ class ConnectionViewDelegate: PlaygroundBluetoothConnectionViewDelegate, Playgro
         // Provide a localized title for the given state of the connection view.
         switch state {
         case .noConnection:
-            return NSLocalizedString("Connect Dash", comment:"")
+            return NSLocalizedString("Connect Drone", comment:"")
         case .connecting:
-            return NSLocalizedString("Connecting Dash", comment:"")
+            return NSLocalizedString("Connecting Drone", comment:"")
         case .searchingForPeripherals:
-            return NSLocalizedString("Searching for Dash", comment:"")
+            return NSLocalizedString("Searching for Drone", comment:"")
         case .selectingPeripherals:
-            return NSLocalizedString("Select Dash", comment:"")
+            return NSLocalizedString("Select Drone", comment:"")
         case .connectedPeripheralFirmwareOutOfDate:
-            return NSLocalizedString("Connect to a Different Dash", comment:"")
+            return NSLocalizedString("Connect to a Different Drone", comment:"")
         }
     }
     
