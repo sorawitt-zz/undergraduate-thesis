@@ -11,6 +11,7 @@ public class DroneCommand: NSObject{
         switch command {
         case .string("f"):
             dataRaw = "f"
+            droneConnection.isReady = true
             droneConnection.sendDroneData(dataRaw, duration)
             break
         default:
