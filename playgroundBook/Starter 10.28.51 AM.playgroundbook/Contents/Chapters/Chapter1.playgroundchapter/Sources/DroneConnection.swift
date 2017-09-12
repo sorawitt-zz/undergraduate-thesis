@@ -18,7 +18,11 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     public var onPeripheralDiscovered:(([CBPeripheral])->Void)?     // Found robot
     public var onPeripheralNotFound:(()->Void)?                     // Can't connect to robot
     public var onCharacteristicsDiscovered:((CBPeripheral)->Void)?  // Robot connected
-    public var onDataWritten:(()->Void)?                            // Command sent
+    public var onDataWritten:(()->Void)?
+    
+    public var isReady = false
+    
+    public var commandSent: CommandSender! // Command sent
 
     public override init() {
         super.init()
@@ -34,7 +38,6 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
 
     public func centralManager(_ centralManager: PlaygroundBluetoothCentralManager, didDiscover peripheral: CBPeripheral, withAdvertisementData advertisementData: [String : Any]?, rssi: Double)  {
         // // Handle peripheral discovery.
-        // myPrint("Discovered \(peripheral.name) at \(rssi)")
     }
             
      public func centralManager(_ centralManager: PlaygroundBluetoothCentralManager, willConnectTo peripheral: CBPeripheral) {
@@ -43,7 +46,6 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     
     public func centralManager(_ centralManager: PlaygroundBluetoothCentralManager, didConnectTo peripheral: CBPeripheral) {
         //// Handle successful peripheral connection.
-        //myPrint("Peripheral:\(peripheral.name) connected")
         peripheral.delegate = self                          // Make sure we get the discovery callbacks
         peripheral.discoverServices([transferServiceUUID])  // Search only for services that match our service UUID
         discoveredPeripheral = peripheral
@@ -59,12 +61,16 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     }
 
     public func sendDroneData(_ data:String, _ duration:Int){
-        let data = (data as NSString).data(using: String.Encoding.utf8.rawValue)
-        discoveredPeripheral!.writeValue(data!, for: commandCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(duration) ) {
-            self.onDataWritten?()
+        if isReady {
+            let data = (data as NSString).data(using: String.Encoding.utf8.rawValue)
+            discoveredPeripheral!.writeValue(data!, for: commandCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
+            isReady = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(duration) ) {
+                self.onDataWritten?()
+            }
         }
+
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -85,6 +91,7 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
         for charateristic in service.characteristics! {
             
             let thisCharacteristic = charateristic as CBCharacteristic
+            
             // Set notify for characteristics here.
             peripheral.setNotifyValue(true, for: thisCharacteristic)
             commandCharacteristic = thisCharacteristic
@@ -99,15 +106,18 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     }
 
 
-
+    func sendMsgToLiveView(_ msg: String){
+        commandSent.sendCommand(.string(msg))
+    }
      // Callback on data arrival via notification on the characteristic
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-
 
         if characteristic.uuid.uuidString == "FFE1" {
             
             let message = String(data: characteristic.value!, encoding: String.Encoding.utf8)
- 
+            if message == "Ready" {
+                isReady = true
+            }
         }
     }
 
