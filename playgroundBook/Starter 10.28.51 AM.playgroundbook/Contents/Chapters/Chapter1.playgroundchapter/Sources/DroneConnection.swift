@@ -61,17 +61,18 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     }
 
     public func sendDroneData(_ data:String, _ duration:Int){
-
-        if isReady {
-            let data = (data as NSString).data(using: String.Encoding.utf8.rawValue)
-            discoveredPeripheral!.writeValue(data!, for: commandCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
-            isReady = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(duration) ) {
-                self.onDataWritten?()
-            }
+        
+        let data = (data as NSString).data(using: String.Encoding.utf8.rawValue)
+        discoveredPeripheral!.writeValue(data!, for: commandCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
+        isReady = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(duration) ) {
+            self.onDataWritten?()
         }
-
     }
+    
+    
+
+    
 
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
 
