@@ -2,7 +2,16 @@ import Foundation
 import PlaygroundSupport
 
 
-
+public enum CommandType: String{
+    
+    case COMMAND_TAKE_OFF   =   "command_take_off"
+    case COMMAND_LAND       =   "command_land"
+    case COMMAND_TURN_LEFT  =   "command_turn_left"
+    case COMMAND_TURN_RIGHT =   "command_turn_right"
+    case COMMAND_FORWARD    =   "command_forward"
+    case COMMAND_BACKWARD   =   "command_backward"
+    
+}
 
 public protocol CommandPauseDelegate {
     var isReadyForMoreCommands: Bool { get set }
@@ -35,8 +44,8 @@ public class CommandSender: CommandPauseDelegate {
             proxy.send(commandData)
         }
 // Spin the runloop until the LiveView process has completed the current command.
-//        isReadyForMoreCommands = false
-//        wait()
+       isReadyForMoreCommands = false
+        wait()
     }
     
     public func connectToRobot(_ name:String){
@@ -49,8 +58,35 @@ public class CommandSender: CommandPauseDelegate {
     }
     
     public func moveForward(){
-        command = .string("f")
+        command = .string(CommandType.COMMAND_FORWARD.rawValue)
         sendCommand(command)
     }
+    
+    public func moveBackward(){
+        command = .string(CommandType.COMMAND_BACKWARD.rawValue)
+        sendCommand(command)
+    }
+    
+    public func moveTakeOff(){
+        command = .string(CommandType.COMMAND_TAKE_OFF.rawValue)
+        sendCommand(command)
+    }
+    
+    public func moveLand(){
+        command = .string(CommandType.COMMAND_LAND.rawValue)
+        sendCommand(command)
+    }
+    
+    public func turnLeft(){
+        command = .string(CommandType.COMMAND_TURN_LEFT.rawValue)
+        sendCommand(command)
+    }
+    
+    public func turnRight(){
+        command = .string(CommandType.COMMAND_TURN_RIGHT.rawValue)
+        sendCommand(command)
+    }
+    
+
     
 }
