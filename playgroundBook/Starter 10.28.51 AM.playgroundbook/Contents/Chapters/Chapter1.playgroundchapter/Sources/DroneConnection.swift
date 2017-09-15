@@ -20,6 +20,9 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     public var onCharacteristicsDiscovered:((CBPeripheral)->Void)?  // Robot connected
     public var onDataWritten:(()->Void)?
     
+    
+    public var assessManager: AssessmentManager!
+    
     public var isReady = false
     
     public var commandSent: CommandSender! // Command sent
@@ -61,6 +64,8 @@ public class DroneConnection: NSObject, PlaygroundBluetoothCentralManagerDelegat
     }
 
     public func sendDroneData(_ data:String, _ duration:Int){
+        
+        assessManager.commandsUser.append(data)
         
         let data = (data as NSString).data(using: String.Encoding.utf8.rawValue)
         discoveredPeripheral!.writeValue(data!, for: commandCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
