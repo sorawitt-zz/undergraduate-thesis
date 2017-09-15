@@ -1,6 +1,5 @@
 import Foundation
 import PlaygroundSupport
-import PlaygroungBluetooth
 
 
 public class DroneCommand: NSObject{
@@ -10,12 +9,7 @@ public class DroneCommand: NSObject{
         switch command {
         case let .string(text):
             switch(text){
-            case CommandType.COMMAND_WAITFOR_OBSTACLE_FRONT.rawValue,
-                 CommandType.COMMAND_WAITFOR_OBSTACLE_REAR.rawValue,
-                 CommandType.COMMAND_WAITFOR_CLAP.rawValue,
-                 CommandType.COMMAND_WAITFOR_BUTTON1.rawValue,
-                 CommandType.COMMAND_WAITFOR_BUTTON2.rawValue,
-                 CommandType.COMMAND_WAITFOR_BUTTON3.rawValue:
+            case CommandType.COMMAND_TAKE_OFF.rawValue:
                 return true
             default:
                 return false
@@ -29,7 +23,7 @@ public class DroneCommand: NSObject{
     
     public func sendDroneCommand(_ droneConnection:DroneConnection, _ command:PlaygroundValue){ // Send command to robot
         
-        var command = ""
+        var data = ""
         var duration:Int = 2000
         
         
@@ -45,18 +39,18 @@ public class DroneCommand: NSObject{
         case let .string(text):
             switch text {
             case CommandType.COMMAND_TAKE_OFF.rawValue:
-                dataRaw = CommandType.COMMAND_TAKE_OFF.rawValue
+                data = CommandType.COMMAND_TAKE_OFF.rawValue
                 break
             case CommandType.COMMAND_LAND.rawValue:
-                dataRaw = CommandType.COMMAND_LAND.rawValue
+                data = CommandType.COMMAND_LAND.rawValue
             case CommandType.COMMAND_TURN_RIGHT.rawValue:
-                dataRaw = CommandType.COMMAND_TURN_RIGHT.rawValue
+                data = CommandType.COMMAND_TURN_RIGHT.rawValue
                 break
             case CommandType.COMMAND_TURN_LEFT.rawValue:
-                dataRaw = CommandType.COMMAND_FORWARD.rawValue
+                data = CommandType.COMMAND_FORWARD.rawValue
                 break
             case CommandType.COMMAND_BACKWARD.rawValue:
-                dataRaw = CommandType.COMMAND_BACKWARD.rawValue
+                data = CommandType.COMMAND_BACKWARD.rawValue
             default:
                 break
             }
@@ -74,7 +68,7 @@ public class DroneCommand: NSObject{
 //            break
 //        }
         
-        robotConnection.sendRobotData(data, duration)
+        droneConnection.sendDroneData(data, duration)
     }
     
 }
