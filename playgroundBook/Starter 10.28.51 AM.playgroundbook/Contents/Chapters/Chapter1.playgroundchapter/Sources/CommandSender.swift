@@ -54,6 +54,9 @@ public class CommandSender: CommandPauseDelegate {
     
     public func exitProgram()
     {
+        var assessmentManager = AssessmentManager()
+        assessmentManager.checkAnswer()
+        
 
     }
     
