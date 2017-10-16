@@ -29,6 +29,7 @@ class MSP: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     let bluetoothUUID: String
     var running = false
     var input = ""
+    var msp = MultiWii()
     
     override init() {
         bluetoothUUID = bluetoothUUIDs[bluetoothID]
@@ -43,24 +44,6 @@ class MSP: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         delegate?.didReceiveReady()
     }
     
-//    func sendCommand(command: Command) {
-//        running = true
-//        writeValue(data: command.message())
-//
-//    }
-    
-//    @objc func sonarTest(distance: Int) {
-//        print(distance)
-//        let obstacle = distance < 20
-//
-//        delegate?.didReceiveSonar(obstable: obstacle)
-//    }
-    
-//    @objc func lightTest(color: Int) {
-//        print(color)
-//        let colorIsBlack = color < 250
-//        delegate?.didReceiveColor(black: colorIsBlack)
-//    }
     
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -96,6 +79,9 @@ class MSP: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
     
+    
+
+    
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let servicePeripherrals = peripheral.services as [CBService]!{
             for service in servicePeripherrals{
@@ -120,7 +106,7 @@ class MSP: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        print(characteristic.value!.count)
+        //print(characteristic.value!.count)
         for index in 0...2{
             str = str+" \(Character(UnicodeScalar(characteristic.value![index])))"
         }
@@ -129,16 +115,24 @@ class MSP: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
            
             str = str+" \(characteristic.value![dataC])"
         }
-        
-        
-//        if characteristic.uuid.uuidString == "FFE1" {
-//
-//            let message = String(data: characteristic.value!, encoding: String.Encoding.utf8)
-//
-//            print(message)
-//
-//        }
+
     }
+    
+    func takeOff() {
+        // ref: http://www.multiwii.com/forum/viewtopic.php?f=18&t=7360
+        let commands = msp.getMspSetRawRC(roll: 1500, pitch: 1500, yaw: 1500, throttle: 2000, aux1: 1000, aux2: 1000, aux3: 1000, aux4: 1000)
+        for command in commands{
+            writeValue(data: int2Ascii(raw: Int(command)))
+        }
+        
+    }
+    
+    func int2Ascii(raw: Int) -> String{
+        let myUnicodeScalar = UnicodeScalar(raw)!
+        return "\(Character(myUnicodeScalar))"
+    }
+
+   
     
 }
 

@@ -28,12 +28,38 @@ class ViewController: UIViewController {
     }
 
     @IBAction func sendCommand(){
+//        while(true){
+//             msp.takeOff()
+//        }
+       
+        
+        
         msp.writeValue(data: "$")
         msp.writeValue(data: "M")
         msp.writeValue(data: "<")
         msp.writeValue(data: "\0")
         msp.writeValue(data: "d")
         msp.writeValue(data: "d")
+        
+        //myPort.write();
+    }
+    
+    
+    @IBAction func sendCommand2(){
+        //        while(true){
+        //             msp.takeOff()
+        //        }
+        
+        
+        
+        msp.writeValue(data: "$")
+        msp.writeValue(data: "M")
+        msp.writeValue(data: "<")
+        msp.writeValue(data: "\0")
+        msp.writeValue(data: "f")
+        msp.writeValue(data: "f")
+        
+        //myPort.write();
     }
     
     @IBAction func getRespone(){
